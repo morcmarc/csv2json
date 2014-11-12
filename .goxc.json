@@ -1,0 +1,5 @@
+{
+  "PackageVersion": "v0.1.0",
+  "ConfigVersion": "0.9",
+  "BuildConstraints": "windows,linux,darwin,amd64,386"
+}
