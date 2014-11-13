@@ -40,29 +40,48 @@ var convertCommand = cli.Command{
 			Usage: "allow lazy quotes",
 		},
 		cli.BoolFlag{
-			Name:  "trim, t",
+			Name:  "trim",
 			Usage: "trim leading space",
+		},
+		cli.BoolFlag{
+			Name:  "type, t",
+			Value: true,
+			Usage: "use type guessing",
 		},
 	},
 }
 
 func convertAction(c *cli.Context) {
+	// Validate first argument which should be a file path
 	if len(c.Args()) == 0 {
 		log.Fatalln("No input given")
 	}
 	iFile := c.Args()[0]
+
+	// Read file
 	csv, err := os.Open(iFile)
 	if err != nil {
 		log.Fatalf("Could not open file: %s", iFile)
 	}
+	defer csv.Close()
 
+	// Create output file
 	oFile := c.String("output")
 	if oFile == "" {
 		log.Fatalln("No output file")
 	}
+	json, err := os.Create(oFile)
+	if err != nil {
+		log.Fatalf("Could not open file: %s", err)
+	}
+	defer json.Close()
 
-	converter := NewConverter(csv)
+	useTypeGuessing := c.Bool("type")
 
+	// New converter
+	converter := NewConverter(csv, json, useTypeGuessing)
+
+	// Process arguments
 	if d := c.String("delimiter"); d != "," {
 		db := []byte(d)
 		dr, _ := utf8.DecodeRune(db)
@@ -87,5 +106,6 @@ func convertAction(c *cli.Context) {
 		converter.SetTrim(t)
 	}
 
+	// Kick off the conversion
 	converter.Run()
 }
