@@ -4,73 +4,66 @@ The converter package handles conversion between csv and json
 package converter
 
 import (
-	"bufio"
 	"encoding/csv"
 	"encoding/json"
 	"io"
 	"log"
+	"os"
+
+	"github.com/morcmarc/csv2json/types"
 )
 
 type Converter struct {
-	reader          *csv.Reader
-	writer          *json.Encoder
-	input           io.Reader
-	output          io.Writer
-	useTypeGuessing bool
+	input  *os.File
+	output *os.File
 }
 
 // Returns a new Converter for the given input and output
-func NewConverter(csvInput io.Reader, jsonOutput io.Writer, utg bool) *Converter {
+func NewConverter(csvInput *os.File, jsonOutput *os.File) *Converter {
 	converter := &Converter{
-		input:           csvInput,
-		output:          jsonOutput,
-		reader:          csv.NewReader(csvInput),
-		writer:          json.NewEncoder(bufio.NewWriter(jsonOutput)),
-		useTypeGuessing: utg,
+		input:  csvInput,
+		output: jsonOutput,
 	}
 	return converter
 }
 
-// Delimiter symbol
-func (c *Converter) SetDelimiter(d rune) {
-	c.reader.Comma = d
-}
-
-// Comment character
-func (c *Converter) SetComment(d rune) {
-	c.reader.Comment = d
-}
-
-// Expected fields per line
-func (c *Converter) SetFieldsPerRecord(f int) {
-	c.reader.FieldsPerRecord = f
-}
-
-// Turns on lazy quotes
-func (c *Converter) SetLazyQuotes(l bool) {
-	c.reader.LazyQuotes = l
-}
-
-// Sets Trim Leading Space flag
-func (c *Converter) SetTrim(t bool) {
-	c.reader.TrimLeadingSpace = t
-}
-
 // Processes the input and writes converted objects onto the output
 func (c *Converter) Run() {
-	f, err := c.reader.Read()
+	var cReader *csv.Reader
+
+	cReader = getNewCsvReader(c.input)
+	fields, err := cReader.Read()
 	if err != nil {
 		log.Fatalf("Could not read input: %s", err)
 	}
-	r := NewRecords(f)
-	c.output.Write([]byte("["))
+	typeMap, err := types.Infer(cReader, fields, 10)
+	if err != nil {
+		log.Fatalf("Could not infer types: %s", err)
+	}
+
+	c.input.Seek(0, 0)
+	cReader = getNewCsvReader(c.input)
+	cReader.Read()
+
+	r := NewRecords(fields, typeMap)
+
+	c.output.WriteString("[")
 	for {
-		line, err := c.reader.Read()
+		line, err := cReader.Read()
 		if err == io.EOF {
 			break
 		}
-		c.writer.Encode(r.Convert(line))
-		c.output.Write([]byte(","))
+
+		j, err := json.Marshal(r.Convert(line))
+		if err != nil {
+			log.Fatalf("Failed encoding json: %s", err)
+		}
+		c.output.Write(j)
+		c.output.WriteString(",")
 	}
-	c.output.Write([]byte("]"))
+	c.output.WriteString("]")
+}
+
+func getNewCsvReader(in *os.File) *csv.Reader {
+	return csv.NewReader(in)
 }
