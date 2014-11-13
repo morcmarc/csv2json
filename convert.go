@@ -20,29 +20,29 @@ var convertCommand = cli.Command{
 			Value: "",
 			Usage: "path to file where result should be written to",
 		},
-		cli.StringFlag{
-			Name:  "delimiter, d",
-			Value: ",",
-			Usage: "field delimiter, set to ',' by default",
-		},
-		cli.StringFlag{
-			Name:  "comment, c",
-			Value: "",
-			Usage: "comment character for start of line",
-		},
-		cli.IntFlag{
-			Name:  "fields, f",
-			Value: 0,
-			Usage: "number of expected fields per record",
-		},
-		cli.BoolFlag{
-			Name:  "lazy, l",
-			Usage: "allow lazy quotes",
-		},
-		cli.BoolFlag{
-			Name:  "trim, t",
-			Usage: "trim leading space",
-		},
+		// cli.StringFlag{
+		// 	Name:  "delimiter, d",
+		// 	Value: ",",
+		// 	Usage: "field delimiter, set to ',' by default",
+		// },
+		// cli.StringFlag{
+		// 	Name:  "comment, c",
+		// 	Value: "",
+		// 	Usage: "comment character for start of line",
+		// },
+		// cli.IntFlag{
+		// 	Name:  "fields, f",
+		// 	Value: 0,
+		// 	Usage: "number of expected fields per record",
+		// },
+		// cli.BoolFlag{
+		// 	Name:  "lazy, l",
+		// 	Usage: "allow lazy quotes",
+		// },
+		// cli.BoolFlag{
+		// 	Name:  "trim, t",
+		// 	Usage: "trim leading space",
+		// },
 	},
 }
 

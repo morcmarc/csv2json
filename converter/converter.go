@@ -48,10 +48,16 @@ func (c *Converter) Run() {
 	r := NewRecords(fields, typeMap)
 
 	c.output.WriteString("[")
+	firstItem := true
 	for {
 		line, err := cReader.Read()
 		if err == io.EOF {
 			break
+		}
+		if !firstItem {
+			c.output.WriteString(",")
+		} else {
+			firstItem = false
 		}
 
 		j, err := json.Marshal(r.Convert(line))
@@ -59,7 +65,6 @@ func (c *Converter) Run() {
 			log.Fatalf("Failed encoding json: %s", err)
 		}
 		c.output.Write(j)
-		c.output.WriteString(",")
 	}
 	c.output.WriteString("]")
 }
