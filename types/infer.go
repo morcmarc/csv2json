@@ -82,14 +82,14 @@ func (s *Learner) BestGuess() interface{} {
 }
 
 func GuessString(v string) interface{} {
-	if typedv, err := strconv.ParseInt(v, 0, 64); err == nil {
+	if typedv, err := strconv.ParseFloat(v, 64); err == nil {
 		return typedv
-	} else if typedv, err := strconv.ParseBool(v); err == nil {
+	} else if typedv, err := strconv.ParseInt(v, 0, 64); err == nil {
 		return typedv
-	} else if typedv, err := strconv.ParseFloat(v, 64); err == nil {
+	} else if typedv, err := strconv.ParseInt(v, 0, 64); err == nil {
 		return typedv
 	} else if v == "" {
-		return nil
+		return STRING
 	}
 	return v
 }

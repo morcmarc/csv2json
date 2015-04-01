@@ -1,5 +1,5 @@
 {
-  "PackageVersion": "v0.1.1",
+  "PackageVersion": "v0.1.3",
   "ConfigVersion": "0.9",
   "BuildConstraints": "windows,linux,darwin,amd64,386",
   "TaskSettings" : {
